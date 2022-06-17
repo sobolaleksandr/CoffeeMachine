@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,7 +10,6 @@ using CoffeeMachine.BL;
 using CoffeMachine.Data;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("[controller]")]
@@ -32,11 +30,8 @@ public class OrderController : ControllerBase
             .GetAll()
             .ConfigureAwait(false);
 
-        var idOrders = orders
-            .Where(entity => entity.CoffeeId == id)
-            .ToList();
-
-        if (!idOrders.Any())
+        var ordersCount = orders.Count(entity => entity.CoffeeId == id);
+        if (ordersCount == 0)
             return NotFound(id);
 
         var coffee = await _unitOfWork
@@ -46,7 +41,7 @@ public class OrderController : ControllerBase
 
         var order = new OrderDto
         {
-            Cache = coffee.Price * idOrders.Count,
+            Cache = coffee.Price * ordersCount,
             CoffeeId = id,
             Name = coffee.Name,
         };
@@ -57,19 +52,26 @@ public class OrderController : ControllerBase
     [HttpGet]
     public async Task<List<OrderDto>> GetAll()
     {
-        var orders = _unitOfWork
+        var orders = await _unitOfWork
             .GetRepository<Order>()
-            .DbSetEntity;
+            .GetAll()
+            .ConfigureAwait(false);
 
-        var coffees = _unitOfWork
+        var coffees = await _unitOfWork
             .GetRepository<Coffee>()
-            .DbSetEntity;
+            .GetAll()
+            .ConfigureAwait(false);
 
-        var items = await orders.Join(coffees, order => order.CoffeeId, coffee => coffee.Id,
-            (order, coffee) => new { order, coffee })
-            .ToListAsync();
-
-        return new List<OrderDto>();
+        return orders.Join(coffees, order => order.CoffeeId, coffee => coffee.Id,
+                (order, coffee) => new { order, coffee })
+            .GroupBy(x => x.coffee)
+            .Select(grouping =>
+            {
+                var coffee = grouping.Key;
+                return new OrderDto
+                    { Cache = coffee.Price * grouping.Count(), Name = coffee.Name, CoffeeId = coffee.Id };
+            })
+            .ToList();
     }
 
     [HttpPost]
@@ -77,7 +79,8 @@ public class OrderController : ControllerBase
     {
         var coffee = await _unitOfWork
             .GetRepository<Coffee>()
-            .FirstOrDefaultAsync(entity => order.CoffeeId == entity.Id || order.Name == entity.Name);
+            .FirstOrDefaultAsync(entity => order.CoffeeId == entity.Id || order.Name == entity.Name)
+            .ConfigureAwait(false);
 
         if (coffee == null)
             return NotFound(order);
@@ -92,9 +95,11 @@ public class OrderController : ControllerBase
             .Add(new Order
             {
                 CoffeeId = coffee.Id,
-            });
+            }).ConfigureAwait(false);
 
-        await _unitOfWork.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync()
+            .ConfigureAwait(false);
+
         return Ok(change);
     }
 }

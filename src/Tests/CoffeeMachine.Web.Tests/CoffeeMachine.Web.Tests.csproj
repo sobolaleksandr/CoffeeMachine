@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoffeeMachine.Web\CoffeeMachine.Web.csproj" />
-    <ProjectReference Include="..\CoffeMachine.Data\CoffeMachine.Data.csproj" />
+    <ProjectReference Include="..\..\CoffeeMachine.Web\CoffeeMachine.Web.csproj" />
+    <ProjectReference Include="..\..\CoffeMachine.Data\CoffeMachine.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -22,7 +22,7 @@ namespace CoffeeMachine.Web.Tests
         {
             _repository = new Mock<IGenericRepository<Coffee>>();
             _unitOfWork = new Mock<IUnitOfWork>();
-            _unitOfWork.Setup(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()))
+            _unitOfWork.Setup(uof => uof.GetRepository<Coffee>())
                 .Returns(_repository.Object)
                 .Verifiable();
         }
@@ -39,12 +39,12 @@ namespace CoffeeMachine.Web.Tests
                 .Verifiable();
 
             var controller = new CoffeeController(_unitOfWork.Object);
-            var actual = await controller.GetAll();
+            var actual = await controller.GetAll().ConfigureAwait(false);
 
             Assert.Equal(expected, actual);
 
             _repository.Verify(repo => repo.GetAll(), Times.Once);
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
         }
 
         public static IEnumerable<object[]> GetData()
@@ -78,7 +78,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(404, viewResult.StatusCode);
             Assert.Equal(guid, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Never);
             _repository.Verify(repo => repo.Delete(It.IsAny<Coffee>()), Times.Never);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -101,13 +101,13 @@ namespace CoffeeMachine.Web.Tests
                 .Verifiable();
 
             var controller = new CoffeeController(_unitOfWork.Object);
-            var result = await controller.Delete(new Guid());
+            var result = await controller.Delete(new Guid()).ConfigureAwait(false);
 
             var viewResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(200, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Exactly(2));
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Exactly(2));
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Once);
             _repository.Verify(repo => repo.Delete(It.IsAny<Coffee>()), Times.Once);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -129,7 +129,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(404, viewResult.StatusCode);
             Assert.Equal(guid, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
                 Times.Once);
         }
@@ -143,13 +143,13 @@ namespace CoffeeMachine.Web.Tests
                 .Verifiable();
 
             var controller = new CoffeeController(_unitOfWork.Object);
-            var result = await controller.Get(new Guid());
+            var result = await controller.Get(new Guid()).ConfigureAwait(false);
 
             var viewResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(200, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
                 Times.Once);
         }
@@ -176,7 +176,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(400, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Never);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Never);
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Never);
             _repository.Verify(repo => repo.Add(It.IsAny<Coffee>()), Times.Never);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -205,7 +205,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(400, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Never);
             _repository.Verify(repo => repo.Add(It.IsAny<Coffee>()), Times.Never);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -234,7 +234,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(200, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Exactly(2));
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Exactly(2));
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Once);
             _repository.Verify(repo => repo.Add(It.IsAny<Coffee>()), Times.Once);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -263,7 +263,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(400, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Never);
             _repository.Verify(repo => repo.Update(It.IsAny<Coffee>()), Times.Never);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -292,7 +292,7 @@ namespace CoffeeMachine.Web.Tests
             Assert.Equal(200, viewResult.StatusCode);
             Assert.Equal(coffee, viewResult.Value);
 
-            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Exactly(2));
+            _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Exactly(2));
             _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Once);
             _repository.Verify(repo => repo.Update(It.IsAny<Coffee>()), Times.Once);
             _repository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),

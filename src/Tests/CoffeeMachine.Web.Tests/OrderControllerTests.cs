@@ -25,11 +25,11 @@ public class OrderControllerTests
         _coffeeRepository = new Mock<IGenericRepository<Coffee>>();
         _orderRepository = new Mock<IGenericRepository<Order>>();
         _unitOfWork = new Mock<IUnitOfWork>();
-        _unitOfWork.Setup(uof => uof.GetRepository<Order>(It.IsAny<bool>()))
+        _unitOfWork.Setup(uof => uof.GetRepository<Order>())
             .Returns(_orderRepository.Object)
             .Verifiable();
 
-        _unitOfWork.Setup(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()))
+        _unitOfWork.Setup(uof => uof.GetRepository<Coffee>())
             .Returns(_coffeeRepository.Object)
             .Verifiable();
     }
@@ -55,7 +55,7 @@ public class OrderControllerTests
 
         actual.Should().BeEquivalentTo(expected);
 
-        _unitOfWork.Verify(uof => uof.GetRepository<Order>(It.IsAny<bool>()), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Order>(), Times.Once);
         _orderRepository.Verify(repo => repo.GetAll(), Times.Once);
         _coffeeRepository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
             Times.Never);
@@ -96,7 +96,7 @@ public class OrderControllerTests
         Assert.Equal(404, viewResult.StatusCode);
         Assert.Equal(guid, viewResult.Value);
 
-        _unitOfWork.Verify(uof => uof.GetRepository<Order>(It.IsAny<bool>()), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Order>(), Times.Once);
         _orderRepository.Verify(repo => repo.GetAll(), Times.Once);
         _coffeeRepository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
             Times.Never);
@@ -124,8 +124,8 @@ public class OrderControllerTests
         Assert.Equal(Coffee.Id, orderDto.CoffeeId);
         Assert.Equal(Coffee.Name, orderDto.Name);
 
-        _unitOfWork.Verify(uof => uof.GetRepository<Order>(It.IsAny<bool>()), Times.Once);
-        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Order>(), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
         _orderRepository.Verify(repo => repo.GetAll(), Times.Once);
         _coffeeRepository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
             Times.Once);
@@ -151,14 +151,14 @@ public class OrderControllerTests
             Cache = 200,
         };
 
-        var result = await controller.Post(orderDto);
+        var result = await controller.Post(orderDto).ConfigureAwait(false);
 
         var viewResult = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal(400, viewResult.StatusCode);
         Assert.Equal(orderDto, viewResult.Value);
 
-        _unitOfWork.Verify(uof => uof.GetRepository<Order>(It.IsAny<bool>()), Times.Never);
-        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Order>(), Times.Never);
+        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
         _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Never);
         _orderRepository.Verify(repo => repo.Add(It.IsAny<Order>()), Times.Never);
         _coffeeRepository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -191,8 +191,8 @@ public class OrderControllerTests
         Assert.Equal(404, viewResult.StatusCode);
         Assert.Equal(orderDto, viewResult.Value);
 
-        _unitOfWork.Verify(uof => uof.GetRepository<Order>(It.IsAny<bool>()), Times.Never);
-        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Order>(), Times.Never);
+        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
         _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Never);
         _orderRepository.Verify(repo => repo.Add(It.IsAny<Order>()), Times.Never);
         _coffeeRepository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),
@@ -223,8 +223,8 @@ public class OrderControllerTests
         Assert.Equal(200, viewResult.StatusCode);
         Assert.Equal(new decimal[] { 2000, 1000, 100, 50 }, viewResult.Value);
 
-        _unitOfWork.Verify(uof => uof.GetRepository<Order>(It.IsAny<bool>()), Times.Once);
-        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(It.IsAny<bool>()), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Order>(), Times.Once);
+        _unitOfWork.Verify(uof => uof.GetRepository<Coffee>(), Times.Once);
         _unitOfWork.Verify(uof => uof.SaveChangesAsync(), Times.Once);
         _orderRepository.Verify(repo => repo.Add(It.IsAny<Order>()), Times.Once);
         _coffeeRepository.Verify(repo => repo.FirstOrDefaultAsync(It.IsAny<Expression<Func<Coffee, bool>>>()),

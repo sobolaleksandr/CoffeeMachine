@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
-
 /// <summary>
 /// Generic repository provide all base needed methods (CRUD)
 /// </summary>
@@ -31,6 +29,7 @@ public interface IGenericRepository<T> where T : class
     /// <returns>T entity</returns>
     Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
 
+    
     Task<List<T>> GetAll();
 
     /// <summary>
@@ -38,6 +37,4 @@ public interface IGenericRepository<T> where T : class
     /// </summary>
     /// <param name="entity">Entity object</param>
     void Update(T entity);
-
-    DbSet<T> DbSetEntity { get; }
 }

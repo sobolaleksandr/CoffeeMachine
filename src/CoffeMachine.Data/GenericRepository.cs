@@ -14,10 +14,7 @@ public sealed class GenericRepository<TEntity> : IGenericRepository<TEntity> whe
     public GenericRepository(DbContext context)
     {
         _dbSet = context.Set<TEntity>();
-        DbSetEntity = context.Set<TEntity>();
     }
-
-    public DbSet<TEntity> DbSetEntity { get; }
 
     public async Task Add(TEntity entity)
     {
@@ -29,9 +26,11 @@ public sealed class GenericRepository<TEntity> : IGenericRepository<TEntity> whe
         _dbSet.Remove(entityToDelete);
     }
 
-    public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate)
+    public async Task<TEntity> FirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate = null)
     {
-        return await _dbSet.FirstOrDefaultAsync(predicate).ConfigureAwait(false);
+        return predicate == null
+            ? await _dbSet.FirstOrDefaultAsync().ConfigureAwait(false)
+            : await _dbSet.FirstOrDefaultAsync(predicate).ConfigureAwait(false);
     }
 
     public async Task<List<TEntity>> GetAll()

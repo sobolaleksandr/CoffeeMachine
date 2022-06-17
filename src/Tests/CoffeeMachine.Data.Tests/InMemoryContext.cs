@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿namespace CoffeeMachine.Data.Tests;
 
-namespace CoffeeMachine.BL.Tests;
+using CoffeeMachine.BL;
+
+using Microsoft.EntityFrameworkCore;
 
 public class InMemoryContext : DbContext
 {

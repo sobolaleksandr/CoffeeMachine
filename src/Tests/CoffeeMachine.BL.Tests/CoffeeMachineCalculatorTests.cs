@@ -29,7 +29,7 @@ namespace CoffeeMachine.BL.Tests
             var calculator = new CoffeeMachineCalculator();
             var change = calculator.GetChange(Coffee, 500);
 
-            Assert.Equal(Array.Empty<decimal>(), change);
+            Assert.Empty(change);
         }
     }
 }
